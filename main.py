@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
     run = True
     # Проверка на пустой id
-    while len(user_id) == 0:
+    while not user_id:
         user_id = input(f'Введите id пользователя для скачивания фото: ')
     else:
         while run:
@@ -81,35 +81,32 @@ if __name__ == '__main__':
     ya_disk.get_create_folder(f'{user_id}/{"Profile"}')
 
     vk_client_photo_prof = vk_client.get_photo_profile(user_id)
-    count_like_type = []
-    count_url_photo = []
+    count_like = []
     file_json = []
     for like_ in vk_client_photo_prof:
-        count_like_type.append({dict(like_['likes'])['count']: (dict(like_['sizes'][-1]))['type']})
-        count_url_photo.append({dict(like_['likes'])['count']: (dict(like_['sizes'][-1]))['url']})
+        count_like.append({dict(like_['likes'])['count']: [
+            (dict(like_['sizes'][-1]))['type'], (dict(like_['sizes'][-1]))['url']]})
 
-    len_clt = len(count_like_type)
+    len_clt = len(count_like)
 
     for i in range(len_clt - 1):
         for j in range(i + 1, len_clt):
-            if count_like_type[i].keys() == count_like_type[j].keys():
-                f_count_like_type = count_like_type[j].popitem()
-                f_count_url_photo = count_url_photo[j].popitem()
-                count_like_type[j].setdefault(f'{f_count_like_type[0]}_{date.today()}', f_count_like_type[1])
-                count_url_photo[j].setdefault(f'{f_count_url_photo[0]}_{date.today()}', f_count_url_photo[1])
+            if count_like[i].keys() == count_like[j].keys():
+                f_count_like = count_like[j].popitem()
+                count_like[j].setdefault(f'{f_count_like[0]}_{date.today()}', f_count_like[1])
             else:
                 continue
 
-    for i_count_like_type in count_like_type:
-        for key, value in i_count_like_type.items():
-            file_json.append({'file_name': f"{str(key)}.jpg", 'size': str(value)})
+    for i_count_like in count_like:
+        for key, value in i_count_like.items():
+            file_json.append({'file_name': f"{str(key)}.jpg", 'size': str(value[0])})
 
     with open("my.json", 'w') as file:
         json.dump(file_json, file, indent=3)
 
     # Загружаем фото с профиля на ядиск, имя кол-во лайков + прогресс бар
-    for url_ in range(len(count_url_photo)):
-        sg.one_line_progress_meter('Загрузка данных на диск', url_ + 1, len(count_url_photo))
+    for url_ in range(len(count_like)):
+        sg.one_line_progress_meter('Загрузка данных на диск', url_ + 1, len(count_like))
         time.sleep(1)
-        for url_key, url_value in count_url_photo[url_].items():
-            ya_disk.upload_file_internet(f'{user_id}/{"Profile"}/{url_key}.jpg', url_value)
+        for url_key, url_value in count_like[url_].items():
+            ya_disk.upload_file_internet(f'{user_id}/{"Profile"}/{url_key}.jpg', url_value[1])
