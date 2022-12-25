@@ -87,16 +87,6 @@ if __name__ == '__main__':
         count_like.append({dict(like_['likes'])['count']: [
             (dict(like_['sizes'][-1]))['type'], (dict(like_['sizes'][-1]))['url']]})
 
-    len_clt = len(count_like)
-
-    for i in range(len_clt - 1):
-        for j in range(i + 1, len_clt):
-            if count_like[i].keys() == count_like[j].keys():
-                f_count_like = count_like[j].popitem()
-                count_like[j].setdefault(f'{f_count_like[0]}_{date.today()}', f_count_like[1])
-            else:
-                continue
-
     for i_count_like in count_like:
         for key, value in i_count_like.items():
             file_json.append({'file_name': f"{str(key)}.jpg", 'size': str(value[0])})
@@ -106,6 +96,13 @@ if __name__ == '__main__':
 
     # Загружаем фото с профиля на ядиск, имя кол-во лайков + прогресс бар
     for url_ in range(len(count_like)):
+        for i in range(len(count_like) - 1):
+            for j in range(i + 1, len(count_like)):
+                if count_like[i].keys() == count_like[j].keys():
+                    f_count_like = count_like[j].popitem()
+                    count_like[j].setdefault(f'{f_count_like[0]}_{date.today()}', f_count_like[1])
+                else:
+                    continue
         sg.one_line_progress_meter('Загрузка данных на диск', url_ + 1, len(count_like))
         time.sleep(1)
         for url_key, url_value in count_like[url_].items():
