@@ -19,12 +19,12 @@ class Rename_likes:
         photo_like = []
         file_json = []
         for like_ in self.vk_client_photo_prof:
-            if (dict(like_['likes'])['count']) in photo_like:
-                count_like.append((f"{(dict(like_['likes'])['count'])}_{self.data_pr(like_['date'])}",
-                                   (dict(like_['sizes'][-1]))['type'], (dict(like_['sizes'][-1]))['url']))
+            if like_['likes']['count'] in photo_like:
+                count_like.append((f"{like_['likes']['count']}_{self.data_pr(like_['date'])}",
+                                   like_['sizes'][-1]['type'], like_['sizes'][-1]['url']))
             else:
-                count_like.append(((dict(like_['likes'])['count']),
-                                   (dict(like_['sizes'][-1]))['type'], (dict(like_['sizes'][-1]))['url']))
+                count_like.append((like_['likes']['count'],
+                                   like_['sizes'][-1]['type'], like_['sizes'][-1]['url']))
                 photo_like.append(dict(like_['likes'])['count'])
 
         for i_count_like in count_like:
